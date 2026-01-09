@@ -8,14 +8,21 @@ interface TopBarProps {
 }
 
 export const TopBar: React.FC<TopBarProps> = ({
-  title = "ChatCanvas",
+  title = "RenderCanvas (Nano Banana Pro)",
   onExport,
   onSettings,
 }) => {
   return (
     <div className="chatcanvas-topbar">
       <div className="chatcanvas-topbar__left">
-        <h1 className="chatcanvas-topbar__title">{title}</h1>
+        <div className="chatcanvas-topbar__brand">
+          <img
+            className="chatcanvas-topbar__logo"
+            src="/holopop-logo.svg"
+            alt="Holopop logo"
+          />
+          <h1 className="chatcanvas-topbar__title">{title}</h1>
+        </div>
       </div>
       <div className="chatcanvas-topbar__right">
         {onExport && (

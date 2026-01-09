@@ -7,6 +7,7 @@ import "../excalidraw-app/sentry";
 import ExcalidrawApp from "./App";
 
 window.__EXCALIDRAW_SHA__ = import.meta.env.VITE_APP_GIT_SHA;
+window.EXCALIDRAW_EXPORT_SOURCE = "RenderCanvas (Nano Banana Pro)";
 const rootElement = document.getElementById("root")!;
 const root = createRoot(rootElement);
 registerSW();

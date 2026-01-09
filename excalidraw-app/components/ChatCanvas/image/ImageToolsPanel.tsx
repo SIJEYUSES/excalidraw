@@ -11,16 +11,18 @@ import {
   getImageSizeFromDataURL,
   getSelectedImageElement,
   replaceImageFile,
+  type ImageEditHistoryEntry,
 } from "./ImageOps";
 import type { ExcalidrawImageElement } from "@excalidraw/element";
 import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
 import { CaptureUpdateAction } from "@excalidraw/excalidraw";
 import { newElementWith } from "@excalidraw/element";
+import { randomId } from "@excalidraw/common";
 import { ImageEditorModal } from "./ImageEditorModal";
 import { CropModal } from "./CropModal";
 import { ExtendModal } from "./ExtendModal";
 import { UpscaleModal } from "./UpscaleModal";
-import { runMockExtendJob, runMockUpscaleJob } from "../api/mockImageJobs";
+import { runExtendJob, runUpscaleJob } from "../api/imageJobs";
 import "./ImageToolsPanel.scss";
 
 type ModalType = "crop" | "edit" | "extend" | "upscale" | null;
@@ -60,6 +62,7 @@ export const ImageToolsPanel = ({
         blob,
         action,
         meta,
+        jobId: meta?.jobId as string | undefined,
       });
     } finally {
       setIsProcessing(false);
@@ -72,6 +75,13 @@ export const ImageToolsPanel = ({
     const size = await getImageSizeFromDataURL(file.dataURL);
     const centerX = selectedImage.x + selectedImage.width / 2;
     const centerY = selectedImage.y + selectedImage.height / 2;
+    const revertEntry = {
+      id: randomId(),
+      op: "revert",
+      from: selectedImage.fileId ?? null,
+      to: file.id,
+      ts: Date.now(),
+    };
     const updatedElement = newElementWith(selectedImage, {
       fileId: file.id,
       width: size.width,
@@ -82,12 +92,11 @@ export const ImageToolsPanel = ({
         ...(selectedImage.customData ?? {}),
         editHistory: [
           ...(selectedImage.customData?.editHistory ?? []),
-          {
-            id: `revert-${Date.now()}`,
-            action: "revert",
-            fileId: file.id,
-            timestamp: Date.now(),
-          },
+          revertEntry,
+        ],
+        versionChain: [
+          ...(selectedImage.customData?.versionChain ?? []),
+          revertEntry,
         ],
       },
     }) as ExcalidrawImageElement;
@@ -103,11 +112,7 @@ export const ImageToolsPanel = ({
   };
 
   const historyEntries = Array.isArray(selectedImage?.customData?.editHistory)
-    ? (selectedImage?.customData?.editHistory as {
-        action: string;
-        fileId: string;
-        timestamp: number;
-      }[])
+    ? (selectedImage?.customData?.editHistory as ImageEditHistoryEntry[])
     : [];
 
   return (
@@ -161,19 +166,19 @@ export const ImageToolsPanel = ({
             </div>
           )}
           {historyEntries.map((entry) => (
-            <div key={`${entry.fileId}-${entry.timestamp}`} className="chatcanvas-image-tools__history-row">
+            <div key={`${entry.to}-${entry.ts}`} className="chatcanvas-image-tools__history-row">
               <div>
                 <div className="chatcanvas-image-tools__history-action">
-                  {entry.action}
+                  {entry.op}
                 </div>
                 <div className="chatcanvas-image-tools__history-time">
-                  {new Date(entry.timestamp).toLocaleTimeString()}
+                  {new Date(entry.ts).toLocaleTimeString()}
                 </div>
               </div>
               <button
                 className="chatcanvas-image-tools__history-button"
-                onClick={() => handleRevert(entry.fileId)}
-                disabled={!files[entry.fileId]}
+                onClick={() => handleRevert(entry.to)}
+                disabled={!files[entry.to]}
               >
                 Revert
               </button>
@@ -210,14 +215,16 @@ export const ImageToolsPanel = ({
         <ExtendModal
           onClose={() => setActiveModal(null)}
           onApply={async ({ prompt, ...extension }) => {
-            const blob = await runMockExtendJob({
+            const result = await runExtendJob({
               file: selectedFile,
               extension,
               prompt,
             });
-            await handleReplace(selectedImage, blob, "extend", {
+            await handleReplace(selectedImage, result.blob, "extend", {
               prompt,
               ...extension,
+              jobId: result.jobId,
+              mode: result.mode,
             });
             setActiveModal(null);
           }}
@@ -228,11 +235,15 @@ export const ImageToolsPanel = ({
         <UpscaleModal
           onClose={() => setActiveModal(null)}
           onApply={async (scale) => {
-            const blob = await runMockUpscaleJob({
+            const result = await runUpscaleJob({
               file: selectedFile,
               scale,
             });
-            await handleReplace(selectedImage, blob, "upscale", { scale });
+            await handleReplace(selectedImage, result.blob, "upscale", {
+              scale,
+              jobId: result.jobId,
+              mode: result.mode,
+            });
             setActiveModal(null);
           }}
         />

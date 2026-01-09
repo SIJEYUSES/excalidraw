@@ -1209,7 +1209,7 @@ const ExcalidrawWrapper = () => {
       >
         <ExcalidrawChatCanvasWrapper
           excalidrawAPI={excalidrawAPI}
-          title="ChatCanvas"
+          title="RenderCanvas (Nano Banana Pro)"
         >
           {excalidrawContent}
         </ExcalidrawChatCanvasWrapper>

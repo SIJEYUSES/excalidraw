@@ -23,7 +23,7 @@ export const ExcalidrawChatCanvasWrapper: React.FC<
   excalidrawAPI,
   onExport,
   onSettings,
-  title = "ChatCanvas",
+  title = "RenderCanvas (Nano Banana Pro)",
 }) => {
   // Handle agent responses
   const { handleAgentResponse, applyAgentActions } =

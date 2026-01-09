@@ -43,7 +43,10 @@ export const ExtendModal = ({
         </>
       }
     >
-      <p>Mock outpaint job. Expands the canvas and fills new area.</p>
+      <p>
+        Mock outpaint job. Expands the canvas and fills new area (RenderCanvas
+        mock).
+      </p>
       <div className="chatcanvas-image-tools__grid">
         {(["top", "right", "bottom", "left"] as const).map((side) => (
           <label key={side} className="chatcanvas-image-tools__field">

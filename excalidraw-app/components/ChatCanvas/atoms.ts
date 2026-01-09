@@ -34,7 +34,7 @@ export const chatMessagesAtom = atom<ChatMessage[]>([]);
 export const isChatPanelOpenAtom = atom<boolean>(true);
 
 // Left sidebar visibility
-export const isSidebarOpenAtom = atom<boolean>(true);
+export const isSidebarOpenAtom = atom<boolean>(false);
 
 // Right panel width (in pixels)
 export const chatPanelWidthAtom = atom<number>(350);

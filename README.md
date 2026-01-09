@@ -1,46 +1,176 @@
 # RenderCanvas (Nano Banana Pro)
 
-RenderCanvas (Nano Banana Pro) is a Lovart-inspired, image-first canvas experience focused on fast visual iteration. The current build ships a front-end-only workflow with mock AI image operations and a floating image toolbar.
+RenderCanvas (Nano Banana Pro) is an open-source, Holopop-branded AIGC creative canvas for rapid visual iteration.
 
-## What’s implemented
+## Screenshot
 
-- ChatCanvas-inspired UI shell with a centered canvas and right-side chat panel.
-- Drag & drop images (PNG/JPG/WEBP/SVG → rasterized) directly onto the canvas.
-- Hover/selection floating toolbar for image actions.
-- Image operations:
-  - Crop (front-end)
-  - Edit (front-end text/doodle editor with undo/redo)
-  - Extend (mock outpaint)
-  - Upscale (mock HQ resize)
-  - Layers (bring forward/back, lock/unlock)
-  - Replace & download
-- Image metadata stored in `element.customData` with source jobId, edit history, and version chain.
+![RenderCanvas UI](docs/screenshots/rendercanvas.svg)
 
-## Mocked backend adapters
+## Features
 
-The UI retains adapter endpoints (mocked in the front end):
+### Implemented
+- **Canvas**: infinite canvas, select/move/zoom, basic shapes, text, pen, undo/redo.
+- **Assets**: drag & drop images, upload/import images.
+- **Chat**: right-side chat panel.
+- **Image tools**:
+  - Zoom preview (UI-only)
+  - Remove background (UI-only)
+  - Erase (UI-only)
+  - Edit element (UI-only)
+  - Edit text (UI-only)
+  - Extend/outpaint (mock)
+  - Crop (front-end UI)
+  - Upscale (mock)
+  - Layers (lock/visibility)
+- **Export**: PNG/SVG/JSON via built-in export dialogs.
+- **Generators**:
+  - Image generation (UI-only)
+  - Video generation (UI-only)
 
-- `POST /api/image/extend`
-- `POST /api/image/upscale`
-
-## Local development
+## Quick start
 
 ```bash
 # install dependencies
-npm install
+yarn install
 
 # start the app (ChatCanvas UI)
-npm run dev
+yarn start
 # open http://localhost:3000/?ui=chatcanvas
 ```
 
 ## Build
 
 ```bash
-npm run build
-npm run preview
+yarn build
+yarn build:preview
 ```
 
-## License
+## Backend API placeholders (mock)
 
-MIT (see `LICENSE`).
+> The current front-end ships with mock adapters only. The endpoints below describe the intended contract.
+
+### POST `/api/image/remove-bg`
+**Request**
+```json
+{
+  "fileId": "file-123",
+  "prompt": "optional description",
+  "options": {}
+}
+```
+**Response (mock)**
+```json
+{
+  "jobId": "remove-bg-file-123",
+  "status": "completed",
+  "outputFileId": "file-123-removed-bg",
+  "message": "Mock remove background complete."
+}
+```
+
+### POST `/api/image/erase`
+**Request**
+```json
+{
+  "fileId": "file-123",
+  "options": {"mask": "base64"}
+}
+```
+**Response (mock)**
+```json
+{
+  "jobId": "erase-file-123",
+  "status": "completed",
+  "outputFileId": "file-123-erased"
+}
+```
+
+### POST `/api/image/outpaint`
+**Request**
+```json
+{
+  "fileId": "file-123",
+  "options": {"direction": "right"}
+}
+```
+**Response (mock)**
+```json
+{
+  "jobId": "outpaint-file-123",
+  "status": "completed",
+  "outputFileId": "file-123-outpaint"
+}
+```
+
+### POST `/api/image/crop`
+**Request**
+```json
+{
+  "fileId": "file-123",
+  "options": {"x": 0, "y": 0, "width": 512, "height": 512}
+}
+```
+**Response (mock)**
+```json
+{
+  "jobId": "crop-file-123",
+  "status": "completed",
+  "outputFileId": "file-123-crop"
+}
+```
+
+### POST `/api/image/upscale`
+**Request**
+```json
+{
+  "fileId": "file-123",
+  "options": {"scale": 2}
+}
+```
+**Response (mock)**
+```json
+{
+  "jobId": "upscale-file-123",
+  "status": "completed",
+  "outputFileId": "file-123-upscale"
+}
+```
+
+### POST `/api/generate/image`
+**Request**
+```json
+{
+  "prompt": "a neon city skyline",
+  "negativePrompt": "low-res",
+  "options": {"steps": 30}
+}
+```
+**Response (mock)**
+```json
+{
+  "jobId": "image-gen-a-neon-city-skyline",
+  "status": "completed",
+  "outputUrls": ["https://example.com/mock-image.png"]
+}
+```
+
+### POST `/api/generate/video`
+**Request**
+```json
+{
+  "prompt": "a cinematic drone shot",
+  "options": {"duration": 4}
+}
+```
+**Response (mock)**
+```json
+{
+  "jobId": "video-gen-a-cinematic-drone-shot",
+  "status": "completed",
+  "outputUrls": ["https://example.com/mock-video.mp4"]
+}
+```
+
+## License & NOTICE
+
+RenderCanvas (Nano Banana Pro) is distributed under the MIT License. See `LICENSE` and `NOTICE` for attribution details.

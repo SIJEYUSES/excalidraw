@@ -1,6 +1,5 @@
 export {
   ChatCanvasShell,
-  TopBar,
   ChatPanel,
   SidebarDrawer,
 } from "./ChatCanvasShell";

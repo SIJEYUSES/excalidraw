@@ -1,0 +1,18 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#1f2937" />
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bg)" />
+  <rect x="28" y="24" width="56" height="56" rx="12" fill="#ffffff" opacity="0.95" />
+  <circle cx="56" cy="52" r="14" fill="#0ea5e9" />
+  <rect x="110" y="32" width="280" height="16" rx="8" fill="#e2e8f0" opacity="0.7" />
+  <rect x="110" y="56" width="220" height="12" rx="6" fill="#94a3b8" opacity="0.6" />
+  <rect x="24" y="110" width="1080" height="750" rx="18" fill="#0b1220" stroke="#334155" stroke-width="2" />
+  <rect x="1120" y="110" width="456" height="750" rx="18" fill="#111827" stroke="#334155" stroke-width="2" />
+  <text x="60" y="200" fill="#e2e8f0" font-family="Inter, Arial, sans-serif" font-size="20">Canvas</text>
+  <text x="1146" y="200" fill="#e2e8f0" font-family="Inter, Arial, sans-serif" font-size="20">Chat</text>
+  <text x="60" y="230" fill="#94a3b8" font-family="Inter, Arial, sans-serif" font-size="12">Holopop menu button · RenderCanvas UI placeholder</text>
+</svg>

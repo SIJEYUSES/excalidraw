@@ -7,9 +7,6 @@ import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
 interface ExcalidrawChatCanvasWrapperProps {
   children: ReactNode;
   excalidrawAPI: ExcalidrawImperativeAPI | null;
-  onExport?: () => void;
-  onSettings?: () => void;
-  title?: string;
 }
 
 /**
@@ -21,9 +18,6 @@ export const ExcalidrawChatCanvasWrapper: React.FC<
 > = ({
   children,
   excalidrawAPI,
-  onExport,
-  onSettings,
-  title = "RenderCanvas (Nano Banana Pro)",
 }) => {
   // Handle agent responses
   const { handleAgentResponse, applyAgentActions } =
@@ -38,10 +32,7 @@ export const ExcalidrawChatCanvasWrapper: React.FC<
 
   return (
     <ChatCanvasShell
-      title={title}
       excalidrawAPI={excalidrawAPI}
-      onExport={onExport}
-      onSettings={onSettings}
       onSendMessage={handleSendMessage}
       onApplyActions={applyAgentActions}
     >

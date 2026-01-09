@@ -199,10 +199,10 @@ export default defineConfig(({ mode }) => {
           ],
         },
         manifest: {
-          short_name: "RenderCanvas",
-          name: "RenderCanvas (Nano Banana Pro)",
+          short_name: "Holopop",
+          name: "Holopop RenderCanvas",
           description:
-            "RenderCanvas (Nano Banana Pro) is a creative canvas for image-first workflows and mock AI tooling.",
+            "Holopop RenderCanvas is a creative canvas for image-first workflows and mock AI tooling.",
           icons: [
             {
               src: "holopop-logo.svg",
@@ -216,7 +216,7 @@ export default defineConfig(({ mode }) => {
             },
           ],
           start_url: "/",
-          id: "rendercanvas",
+          id: "holopop-rendercanvas",
           display: "standalone",
           theme_color: "#121212",
           background_color: "#ffffff",

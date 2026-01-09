@@ -8,7 +8,7 @@ export const AppWelcomeScreen: React.FC<{
   onCollabDialogOpen: () => any;
   isCollabEnabled: boolean;
 }> = React.memo((props) => {
-  const headingContent = "RenderCanvas (Nano Banana Pro)";
+  const headingContent = "Holopop RenderCanvas";
 
   return (
     <WelcomeScreen>

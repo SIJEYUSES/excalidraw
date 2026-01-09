@@ -1,0 +1,35 @@
+.chatcanvas-inline-composer {
+  position: fixed;
+  z-index: 20;
+  width: 280px;
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-border, #e0e0e0);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+}
+
+.chatcanvas-inline-composer__label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary, #666666);
+  margin-bottom: 6px;
+}
+
+.chatcanvas-inline-composer__input {
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid var(--color-border, #e0e0e0);
+  padding: 8px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--color-text-primary, #333333);
+  background: var(--color-surface-secondary, #f9f9f9);
+  resize: none;
+}
+
+.chatcanvas-inline-composer__hint {
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--color-text-secondary, #777777);
+}

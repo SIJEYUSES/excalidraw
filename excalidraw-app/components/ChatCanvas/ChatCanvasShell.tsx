@@ -5,14 +5,15 @@ import { TopBar } from "./TopBar";
 import { ChatPanel } from "./ChatPanel";
 import { SidebarDrawer } from "./SidebarDrawer";
 import type { AgentAction, SelectionContextPayload } from "./types";
-import type { Template } from "./templates";
+import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
+import { InlineComposerOverlay } from "./composer/InlineComposerOverlay";
 import "./ChatCanvasShell.scss";
 
 interface ChatCanvasShellProps {
   children: ReactNode;
+  excalidrawAPI: ExcalidrawImperativeAPI | null;
   onSendMessage?: (message: string, context: SelectionContextPayload) => void;
   onApplyActions?: (actions: AgentAction[]) => void;
-  onLoadTemplate?: (template: Template) => void;
   onExport?: () => void;
   onSettings?: () => void;
   title?: string;
@@ -20,9 +21,9 @@ interface ChatCanvasShellProps {
 
 export const ChatCanvasShell: React.FC<ChatCanvasShellProps> = ({
   children,
+  excalidrawAPI,
   onSendMessage,
   onApplyActions,
-  onLoadTemplate,
   onExport,
   onSettings,
   title = "ChatCanvas",
@@ -38,14 +39,20 @@ export const ChatCanvasShell: React.FC<ChatCanvasShellProps> = ({
       {/* Main Content Area */}
       <div className="chatcanvas-shell__main">
         {/* Left Sidebar */}
-        {isSidebarOpen && <SidebarDrawer onLoadTemplate={onLoadTemplate} />}
+        {isSidebarOpen && (
+          <SidebarDrawer excalidrawAPI={excalidrawAPI} />
+        )}
 
         {/* Canvas Area */}
-        <div className="chatcanvas-shell__canvas-wrapper">{children}</div>
+        <div className="chatcanvas-shell__canvas-wrapper">
+          {children}
+          <InlineComposerOverlay excalidrawAPI={excalidrawAPI} />
+        </div>
 
         {/* Right Chat Panel */}
         {isChatPanelOpen && (
           <ChatPanel
+            excalidrawAPI={excalidrawAPI}
             onSendMessage={onSendMessage}
             onApplyActions={onApplyActions}
           />

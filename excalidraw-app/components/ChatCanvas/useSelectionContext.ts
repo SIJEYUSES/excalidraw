@@ -1,49 +1,82 @@
-import { useEffect } from "react";
-import { useSetAtom } from "jotai";
-import { selectionContextAtom } from "./atoms";
+import { getDefaultStore } from "jotai";
+import {
+  selectionContextAtom,
+  sceneElementsAtom,
+  sceneFilesAtom,
+  viewTransformAtom,
+} from "./atoms";
+import { getCommonBounds } from "@excalidraw/element";
 import { isTextElement } from "@excalidraw/element";
 import type { ExcalidrawElement } from "@excalidraw/element";
-import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
-import type { ElementContext } from "./types";
+import type { AppState, BinaryFiles } from "@excalidraw/excalidraw/types";
+import type { ElementContext, SelectionBounds, ViewTransform } from "./types";
+
+const store = getDefaultStore();
+
+const buildSelectionSummary = (elements: readonly ExcalidrawElement[]) => {
+  if (elements.length === 0) {
+    return "";
+  }
+
+  const counts = elements.reduce<Record<string, number>>((acc, el) => {
+    acc[el.type] = (acc[el.type] ?? 0) + 1;
+    return acc;
+  }, {});
+
+  return Object.entries(counts)
+    .map(([type, count]) => `${count} ${type}`)
+    .join(", ");
+};
+
+const getSelectionBounds = (
+  elements: readonly ExcalidrawElement[],
+): SelectionBounds | null => {
+  if (!elements.length) return null;
+  const [minX, minY, maxX, maxY] = getCommonBounds(elements);
+  return {
+    x: minX,
+    y: minY,
+    width: maxX - minX,
+    height: maxY - minY,
+  };
+};
+
+const getViewTransform = (appState: AppState): ViewTransform => ({
+  scrollX: appState.scrollX,
+  scrollY: appState.scrollY,
+  zoom: appState.zoom.value,
+  offsetLeft: appState.offsetLeft,
+  offsetTop: appState.offsetTop,
+});
 
 /**
- * Hook to track selected elements from Excalidraw API and update the selection context atom.
- * This enables the chat panel to know which elements are currently selected on the canvas.
+ * Sync ChatCanvas state from Excalidraw onChange.
  */
-export const useSelectionContext = (
-  excalidrawAPI: ExcalidrawImperativeAPI | null,
+export const syncChatCanvasState = (
+  elements: readonly ExcalidrawElement[],
+  appState: AppState,
+  files: BinaryFiles,
 ) => {
-  const setSelectionContext = useSetAtom(selectionContextAtom);
+  const selectedElementIds = appState.selectedElementIds || {};
+  const selectedIds = Object.keys(selectedElementIds).filter(
+    (id) => selectedElementIds[id],
+  );
+  const selectedElements = elements.filter((el) => selectedIds.includes(el.id));
+  const bounds = getSelectionBounds(selectedElements);
+  const fileIds = selectedElements
+    .filter((el) => el.type === "image" && "fileId" in el && el.fileId)
+    .map((el) => (el as ExcalidrawElement & { fileId: string }).fileId);
 
-  useEffect(() => {
-    if (!excalidrawAPI) return;
-
-    // Get the initial selection state
-    const updateSelectionContext = () => {
-      const appState = excalidrawAPI.getAppState();
-      const selectedElementIds = appState.selectedElementIds || {};
-      const selectedIds = Object.keys(selectedElementIds).filter(
-        (id) => selectedElementIds[id],
-      );
-
-      setSelectionContext({
-        elementIds: selectedIds,
-        count: selectedIds.length,
-      });
-    };
-
-    // Update on initial mount
-    updateSelectionContext();
-
-    // Subscribe to changes using the change callback
-    // Note: Excalidraw API doesn't have a direct selection change event,
-    // so we'll use a polling approach with a reasonable interval
-    const intervalId = setInterval(updateSelectionContext, 200);
-
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, [excalidrawAPI, setSelectionContext]);
+  store.set(sceneElementsAtom, elements);
+  store.set(sceneFilesAtom, files);
+  store.set(viewTransformAtom, getViewTransform(appState));
+  store.set(selectionContextAtom, {
+    elementIds: selectedIds,
+    count: selectedIds.length,
+    bounds,
+    fileIds,
+    summary: buildSelectionSummary(selectedElements),
+  });
 };
 
 /**

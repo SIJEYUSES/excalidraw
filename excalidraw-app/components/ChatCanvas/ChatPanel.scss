@@ -141,6 +141,16 @@
     padding: 0 4px;
   }
 
+  &__message-references {
+    border: 1px solid var(--color-border, #e0e0e0);
+    background-color: var(--color-surface-secondary, #f9f9f9);
+    border-radius: 999px;
+    padding: 6px 10px;
+    font-size: 11px;
+    cursor: pointer;
+    align-self: flex-start;
+  }
+
   &__message-actions {
     display: flex;
     gap: 8px;

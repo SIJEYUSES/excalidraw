@@ -7,6 +7,29 @@ import type {
 export type SelectionContextPayload = {
   selectedElements: string[];
   elementCount: number;
+  bounds?: SelectionBounds | null;
+  fileIds?: string[];
+  summary?: string;
+};
+
+export type SelectionBounds = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
+export type ViewTransform = {
+  scrollX: number;
+  scrollY: number;
+  zoom: number;
+  offsetLeft: number;
+  offsetTop: number;
+};
+
+export type MessageReferences = {
+  elementIds: string[];
+  fileIds: string[];
 };
 
 export type ElementContext = {

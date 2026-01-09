@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { loadTemplate, type Template } from "./templates";
-import { convertToExcalidrawElements } from "@excalidraw/excalidraw";
+import { CaptureUpdateAction, convertToExcalidrawElements } from "@excalidraw/excalidraw";
 import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
 
 /**
@@ -11,7 +11,9 @@ export const useTemplateLoader = (
 ) => {
   const handleLoadTemplate = useCallback(
     async (template: Template) => {
-      if (!excalidrawAPI) return;
+      if (!excalidrawAPI) {
+        return;
+      }
 
       // Get the template elements
       const templateElements = loadTemplate(template.id);
@@ -33,12 +35,12 @@ export const useTemplateLoader = (
       // Update the scene with new elements
       excalidrawAPI.updateScene({
         elements: newElements,
+        captureUpdate: CaptureUpdateAction.IMMEDIATELY,
       });
 
       // Optionally scroll to the new elements
       excalidrawAPI.scrollToContent(hydratedElements);
 
-      console.log(`Loaded template: ${template.name}`);
     },
     [excalidrawAPI],
   );

@@ -1,8 +1,6 @@
 import React, { ReactNode } from "react";
 import { ChatCanvasShell } from "./ChatCanvasShell";
-import { useSelectionContext } from "./useSelectionContext";
 import { useAgentResponse } from "./useAgentResponse";
-import { useTemplateLoader } from "./useTemplateLoader";
 import type { SelectionContextPayload } from "./types";
 import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
 
@@ -27,15 +25,9 @@ export const ExcalidrawChatCanvasWrapper: React.FC<
   onSettings,
   title = "ChatCanvas",
 }) => {
-  // Track selection changes
-  useSelectionContext(excalidrawAPI);
-
   // Handle agent responses
   const { handleAgentResponse, applyAgentActions } =
     useAgentResponse(excalidrawAPI);
-
-  // Handle template loading
-  const handleLoadTemplate = useTemplateLoader(excalidrawAPI);
 
   const handleSendMessage = (
     message: string,
@@ -47,11 +39,11 @@ export const ExcalidrawChatCanvasWrapper: React.FC<
   return (
     <ChatCanvasShell
       title={title}
+      excalidrawAPI={excalidrawAPI}
       onExport={onExport}
       onSettings={onSettings}
       onSendMessage={handleSendMessage}
       onApplyActions={applyAgentActions}
-      onLoadTemplate={handleLoadTemplate}
     >
       {children}
     </ChatCanvasShell>

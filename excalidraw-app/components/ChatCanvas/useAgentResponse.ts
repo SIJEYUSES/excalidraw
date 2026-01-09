@@ -3,7 +3,7 @@ import { useSetAtom } from "jotai";
 import { chatMessagesAtom, isAgentLoadingAtom, agentErrorAtom } from "./atoms";
 import { mockAgent } from "./mockAgent";
 import { extractElementContext } from "./useSelectionContext";
-import { convertToExcalidrawElements } from "@excalidraw/excalidraw";
+import { CaptureUpdateAction, convertToExcalidrawElements } from "@excalidraw/excalidraw";
 import { newElementWith } from "@excalidraw/element";
 import type { ExcalidrawElement } from "@excalidraw/element";
 import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
@@ -46,6 +46,7 @@ export const useAgentResponse = (
       try {
         const elements = excalidrawAPI.getSceneElements();
         const selectedElementIds = context.selectedElements || [];
+        const selectedFileIds = context.fileIds ?? [];
 
         // Extract element details for the agent
         const elementDetails = extractElementContext(elements, selectedElementIds);
@@ -70,6 +71,10 @@ export const useAgentResponse = (
             content: response.message,
             timestamp: Date.now(),
             contextElements: selectedElementIds,
+            references: {
+              elementIds: selectedElementIds,
+              fileIds: selectedFileIds,
+            },
             actions: response.actions ?? [],
             applied: false,
           },
@@ -123,6 +128,7 @@ function applyAction(
 
       excalidrawAPI.updateScene({
         elements: updatedElements,
+        captureUpdate: CaptureUpdateAction.IMMEDIATELY,
       });
       return updatedElements;
     }
@@ -137,6 +143,7 @@ function applyAction(
 
       excalidrawAPI.updateScene({
         elements: allElements,
+        captureUpdate: CaptureUpdateAction.IMMEDIATELY,
       });
       return allElements;
     }
@@ -150,6 +157,7 @@ function applyAction(
 
       excalidrawAPI.updateScene({
         elements: filteredElements,
+        captureUpdate: CaptureUpdateAction.IMMEDIATELY,
       });
       return filteredElements;
     }
@@ -165,6 +173,7 @@ function applyAction(
 
       excalidrawAPI.updateScene({
         elements: updatedElements,
+        captureUpdate: CaptureUpdateAction.IMMEDIATELY,
       });
       return updatedElements;
     }

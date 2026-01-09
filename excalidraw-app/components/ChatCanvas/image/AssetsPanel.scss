@@ -1,0 +1,50 @@
+.chatcanvas-assets__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.chatcanvas-assets__item {
+  border: 1px solid var(--color-border, #e0e0e0);
+  border-radius: 8px;
+  background: var(--color-surface-secondary, #f9f9f9);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  cursor: pointer;
+  align-items: center;
+
+  img {
+    max-width: 100%;
+    border-radius: 6px;
+    display: block;
+  }
+
+  span {
+    font-size: 11px;
+    color: var(--color-text-secondary, #777777);
+  }
+}
+
+.chatcanvas-assets__item--selected {
+  border-color: var(--color-primary, #2196f3);
+  box-shadow: 0 0 0 1px var(--color-primary, #2196f3);
+}
+
+.chatcanvas-assets__empty {
+  font-size: 12px;
+  color: var(--color-text-secondary, #777777);
+}
+
+.chatcanvas-assets__placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 80px;
+  width: 100%;
+  font-size: 12px;
+  color: var(--color-text-secondary, #777777);
+  background: var(--color-surface, #ffffff);
+  border-radius: 6px;
+}

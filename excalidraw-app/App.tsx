@@ -145,6 +145,7 @@ import "./index.scss";
 import { ExcalidrawPlusPromoBanner } from "./components/ExcalidrawPlusPromoBanner";
 import { AppSidebar } from "./components/AppSidebar";
 import { ExcalidrawChatCanvasWrapper } from "./components/ChatCanvas";
+import { syncChatCanvasState } from "./components/ChatCanvas/useSelectionContext";
 
 import type { CollabAPI } from "./collab/Collab";
 
@@ -706,6 +707,10 @@ const ExcalidrawWrapper = () => {
         window.devicePixelRatio,
       );
     }
+
+    if (isChatCanvasMode) {
+      syncChatCanvasState(elements, appState, files);
+    }
   };
 
   const [latestShareableLink, setLatestShareableLink] = useState<string | null>(
@@ -833,7 +838,8 @@ const ExcalidrawWrapper = () => {
   };
 
   // Check if ChatCanvas UI mode is enabled
-  const isChatCanvasMode = new URLSearchParams(window.location.search).get("ui") === "chatcanvas";
+  const isChatCanvasMode =
+    new URLSearchParams(window.location.search).get("ui") === "chatcanvas";
 
   const excalidrawContent = (
     <Excalidraw

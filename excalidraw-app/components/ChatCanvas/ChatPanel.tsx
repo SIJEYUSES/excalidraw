@@ -10,14 +10,18 @@ import {
   type ChatMessage,
 } from "./atoms";
 import type { AgentAction, SelectionContextPayload } from "./types";
+import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
+import { CaptureUpdateAction } from "@excalidraw/excalidraw";
 import "./ChatPanel.scss";
 
 interface ChatPanelProps {
+  excalidrawAPI: ExcalidrawImperativeAPI | null;
   onSendMessage?: (message: string, context: SelectionContextPayload) => void;
   onApplyActions?: (actions: AgentAction[]) => void;
 }
 
 export const ChatPanel: React.FC<ChatPanelProps> = ({
+  excalidrawAPI,
   onSendMessage,
   onApplyActions,
 }) => {
@@ -49,6 +53,15 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
       content: inputValue,
       timestamp: Date.now(),
       contextElements: selectionContext.elementIds,
+      references: {
+        elementIds: selectionContext.elementIds,
+        fileIds: selectionContext.fileIds,
+      },
+      selectionSnapshot: {
+        elementIds: selectionContext.elementIds,
+        bounds: selectionContext.bounds,
+        summary: selectionContext.summary,
+      },
     };
 
     setMessages((prev) => [...prev, userMessage]);
@@ -59,6 +72,9 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
       onSendMessage(inputValue, {
         selectedElements: selectionContext.elementIds,
         elementCount: selectionContext.count,
+        bounds: selectionContext.bounds,
+        fileIds: selectionContext.fileIds,
+        summary: selectionContext.summary,
       });
     }
   };
@@ -72,6 +88,31 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
         msg.id === messageId ? { ...msg, applied: true } : msg,
       ),
     );
+  };
+
+  const handleFocusReferences = (message: ChatMessage) => {
+    if (!excalidrawAPI || !message.references?.elementIds.length) return;
+    const elementIds = message.references.elementIds;
+    const elements = excalidrawAPI
+      .getSceneElements()
+      .filter((el) => elementIds.includes(el.id));
+
+    excalidrawAPI.updateScene({
+      appState: {
+        selectedElementIds: elementIds.reduce<Record<string, boolean>>(
+          (acc, id) => {
+            acc[id] = true;
+            return acc;
+          },
+          {},
+        ),
+      },
+      captureUpdate: CaptureUpdateAction.NEVER,
+    });
+
+    if (elements.length) {
+      excalidrawAPI.scrollToContent(elements, { animate: true });
+    }
   };
 
   // Handle keyboard shortcuts
@@ -165,6 +206,15 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
                 {msg.contextElements.length > 1 ? "s" : ""}
               </div>
             )}
+            {msg.references?.elementIds?.length ? (
+              <button
+                className="chatcanvas-panel__message-references"
+                onClick={() => handleFocusReferences(msg)}
+              >
+                Focus {msg.references.elementIds.length} referenced element
+                {msg.references.elementIds.length > 1 ? "s" : ""}
+              </button>
+            ) : null}
             {msg.role === "assistant" && msg.actions?.length ? (
               <div className="chatcanvas-panel__message-actions">
                 <button

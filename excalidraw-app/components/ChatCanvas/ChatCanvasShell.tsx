@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode, useCallback, useState } from "react";
 import { useAtomValue } from "jotai";
 import { isChatPanelOpenAtom, isSidebarOpenAtom } from "./atoms";
 import { TopBar } from "./TopBar";
@@ -7,6 +7,8 @@ import { SidebarDrawer } from "./SidebarDrawer";
 import type { AgentAction, SelectionContextPayload } from "./types";
 import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
 import { InlineComposerOverlay } from "./composer/InlineComposerOverlay";
+import { FloatingImageToolbar } from "./image/FloatingImageToolbar";
+import { useImageDrop } from "./dnd/useImageDrop";
 import "./ChatCanvasShell.scss";
 
 interface ChatCanvasShellProps {
@@ -26,10 +28,26 @@ export const ChatCanvasShell: React.FC<ChatCanvasShellProps> = ({
   onApplyActions,
   onExport,
   onSettings,
-  title = "ChatCanvas",
+  title = "RenderCanvas (Nano Banana Pro)",
 }) => {
   const isChatPanelOpen = useAtomValue(isChatPanelOpenAtom);
   const isSidebarOpen = useAtomValue(isSidebarOpenAtom);
+  const [pointer, setPointer] = useState<{ x: number; y: number } | null>(
+    null,
+  );
+  const { handleDragOver, handleDragLeave, handleDrop, isDragActive } =
+    useImageDrop(excalidrawAPI);
+
+  const handlePointerMove = useCallback(
+    (event: React.PointerEvent<HTMLDivElement>) => {
+      setPointer({ x: event.clientX, y: event.clientY });
+    },
+    [],
+  );
+
+  const handlePointerLeave = useCallback(() => {
+    setPointer(null);
+  }, []);
 
   return (
     <div className="chatcanvas-shell">
@@ -39,14 +57,27 @@ export const ChatCanvasShell: React.FC<ChatCanvasShellProps> = ({
       {/* Main Content Area */}
       <div className="chatcanvas-shell__main">
         {/* Left Sidebar */}
-        {isSidebarOpen && (
-          <SidebarDrawer excalidrawAPI={excalidrawAPI} />
-        )}
+        {isSidebarOpen && <SidebarDrawer />}
 
         {/* Canvas Area */}
-        <div className="chatcanvas-shell__canvas-wrapper">
+        <div
+          className={`chatcanvas-shell__canvas-wrapper ${
+            isDragActive ? "chatcanvas-shell__canvas-wrapper--drag" : ""
+          }`}
+          onPointerMove={handlePointerMove}
+          onPointerLeave={handlePointerLeave}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+        >
           {children}
           <InlineComposerOverlay excalidrawAPI={excalidrawAPI} />
+          <FloatingImageToolbar excalidrawAPI={excalidrawAPI} pointer={pointer} />
+          {isDragActive && (
+            <div className="chatcanvas-shell__drop-indicator">
+              Drop images to add them to the canvas
+            </div>
+          )}
         </div>
 
         {/* Right Chat Panel */}

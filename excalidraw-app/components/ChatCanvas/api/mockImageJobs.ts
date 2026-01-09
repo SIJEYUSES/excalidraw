@@ -1,5 +1,6 @@
 import { extendImage, upscaleImage } from "../image/ImageOps";
 import type { BinaryFileData } from "@excalidraw/excalidraw/types";
+import { randomId } from "@excalidraw/common";
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -13,7 +14,12 @@ export const runMockExtendJob = async ({
   prompt?: string;
 }) => {
   await delay(600);
-  return extendImage(file, extension);
+  return {
+    blob: await extendImage(file, extension),
+    jobId: `mock-extend-${randomId()}`,
+    mode: "mock" as const,
+    prompt,
+  };
 };
 
 export const runMockUpscaleJob = async ({
@@ -24,5 +30,9 @@ export const runMockUpscaleJob = async ({
   scale: number;
 }) => {
   await delay(500);
-  return upscaleImage(file, scale);
+  return {
+    blob: await upscaleImage(file, scale),
+    jobId: `mock-upscale-${randomId()}`,
+    mode: "hq-resize" as const,
+  };
 };

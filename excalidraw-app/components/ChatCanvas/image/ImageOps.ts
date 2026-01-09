@@ -14,10 +14,21 @@ import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
 
 export type ImageEditHistoryEntry = {
   id: string;
-  action: string;
-  fileId: string;
-  timestamp: number;
-  meta?: Record<string, unknown>;
+  op: string;
+  from: string | null;
+  to: string;
+  ts: number;
+  jobId?: string;
+  params?: Record<string, unknown>;
+};
+
+export type ImageVersionEntry = {
+  id: string;
+  op: string;
+  from: string | null;
+  to: string;
+  ts: number;
+  jobId?: string;
 };
 
 export type ImageEditResult = {
@@ -30,7 +41,7 @@ const dataURLToBlob = async (dataURL: string) => {
   return response.blob();
 };
 
-const getImageSizeFromBlob = async (blob: Blob) => {
+export const getImageSizeFromBlob = async (blob: Blob) => {
   const imageBitmap = await createImageBitmap(blob);
   return { width: imageBitmap.width, height: imageBitmap.height };
 };
@@ -46,12 +57,15 @@ const getCanvasBlob = (canvas: HTMLCanvasElement) =>
     }, MIME_TYPES.png);
   });
 
-const buildImageFile = async (blob: Blob): Promise<BinaryFileData> => {
+export const buildImageFile = async (
+  blob: Blob,
+  mimeType: string = MIME_TYPES.png,
+): Promise<BinaryFileData> => {
   const dataURL = await getDataURL(blob);
   return {
     id: randomId(),
     dataURL,
-    mimeType: MIME_TYPES.png,
+    mimeType,
     created: Date.now(),
   };
 };
@@ -67,12 +81,14 @@ export const replaceImageFile = async ({
   blob,
   action,
   meta,
+  jobId,
 }: {
   excalidrawAPI: ExcalidrawImperativeAPI;
   element: ExcalidrawImageElement;
   blob: Blob;
   action: string;
   meta?: Record<string, unknown>;
+  jobId?: string;
 }): Promise<ImageEditResult> => {
   const file = await buildImageFile(blob);
   const { width, height } = await getImageSizeFromBlob(blob);
@@ -84,13 +100,21 @@ export const replaceImageFile = async ({
   const existingHistory = Array.isArray(element.customData?.editHistory)
     ? (element.customData?.editHistory as ImageEditHistoryEntry[])
     : [];
-  const nextHistory: ImageEditHistoryEntry = {
+  const versionEntry: ImageVersionEntry = {
     id: randomId(),
-    action,
-    fileId: file.id,
-    timestamp: Date.now(),
-    meta,
+    op: action,
+    from: element.fileId ?? null,
+    to: file.id,
+    ts: Date.now(),
+    jobId,
   };
+  const nextHistory: ImageEditHistoryEntry = {
+    ...versionEntry,
+    params: meta,
+  };
+  const existingVersionChain = Array.isArray(element.customData?.versionChain)
+    ? (element.customData?.versionChain as ImageVersionEntry[])
+    : [];
 
   const updatedElement = newElementWith(element, {
     fileId: file.id,
@@ -100,7 +124,11 @@ export const replaceImageFile = async ({
     y: centerY - height / 2,
     customData: {
       ...(element.customData ?? {}),
+      source: {
+        jobId: jobId ?? element.customData?.source?.jobId ?? "local-upload",
+      },
       editHistory: [...existingHistory, nextHistory],
+      versionChain: [...existingVersionChain, versionEntry],
     },
   }) as ExcalidrawImageElement;
 

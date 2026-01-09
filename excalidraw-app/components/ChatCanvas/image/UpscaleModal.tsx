@@ -31,7 +31,7 @@ export const UpscaleModal = ({
         </>
       }
     >
-      <p>HQ resize (mock). Choose a scaling factor.</p>
+      <p>HQ resize (mock). Choose a scaling factor (not true SR).</p>
       <div className="chatcanvas-image-tools__row">
         {[2, 4].map((value) => (
           <button
